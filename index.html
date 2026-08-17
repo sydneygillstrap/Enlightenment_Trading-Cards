@@ -1,727 +1,287 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Enlightenment Thinkers Trading Cards</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Great+Vibes&family=Quicksand:wght@400;500;600;700&display=swap');
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enlightenment Thinkers Trading Cards</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Base page styling */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            background-image: radial-gradient(#d1d5db 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
 
-    body {
-      font-family: 'Quicksand', sans-serif;
-      background-color: #fdf6f0;
-      background-image: 
-        radial-gradient(at 10% 10%, rgba(255, 228, 230, 0.7) 0px, transparent 50%),
-        radial-gradient(at 90% 90%, rgba(253, 242, 248, 0.9) 0px, transparent 50%),
-        radial-gradient(at 50% 50%, rgba(254, 243, 199, 0.4) 0px, transparent 50%);
-      min-height: 100vh;
-      color: #5c434d;
-    }
+        h1, h2, h3, .name-title {
+            font-family: 'Cinzel', serif;
+        }
 
-    .font-serif-title {
-      font-family: 'Playfair Display', serif;
-    }
+        /* 3D Flip Card Mechanics */
+        .scene {
+            width: 340px;
+            height: 520px;
+            perspective: 1000px;
+            margin: 1rem;
+        }
 
-    .font-cursive {
-      font-family: 'Great Vibes', cursive;
-    }
+        .card-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
 
-    /* Subtle Floral Background Pattern Overlay */
-    .bg-floral-pattern {
-      background-image: radial-gradient(#f472b6 0.5px, transparent 0.5px), radial-gradient(#f472b6 0.5px, #fdf6f0 0.5px);
-      background-size: 20px 20px;
-      background-position: 0 0, 10px 10px;
-      background-opacity: 0.15;
-    }
+        .card-container.is-flipped {
+            transform: rotateY(180deg);
+        }
 
-    /* 3D Card Flip Mechanics */
-    .perspective-1000 {
-      perspective: 1000px;
-    }
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
 
-    .card-inner {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-      transform-style: preserve-3d;
-    }
+        /* Front and Back specific orientations */
+        .card-front {
+            background-color: white;
+        }
 
-    .card-front, .card-back {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      -webkit-backface-visibility: hidden;
-      backface-visibility: hidden;
-      border-radius: 1.5rem;
-    }
+        .card-back {
+            background-color: #ffffff;
+            transform: rotateY(180deg);
+            overflow-y: auto; /* Allow scrolling if content is too long */
+        }
 
-    .card-back {
-      transform: rotateY(180deg);
-    }
+        /* Custom scrollbar for the card back */
+        .card-back::-webkit-scrollbar {
+            width: 6px;
+        }
+        .card-back::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+            border-radius: 8px;
+        }
+        .card-back::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 8px;
+        }
+        .card-back::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
 
-    .is-flipped .card-inner {
-      transform: rotateY(180deg);
-    }
-
-    /* Lace Border Style */
-    .lace-border {
-      border: 3px double #f3d2dc;
-      outline: 1px dashed #e8b4c8;
-      outline-offset: -8px;
-    }
-
-    /* Custom Soft Scrollbar for Modal */
-    .custom-scroll::-webkit-scrollbar {
-      width: 6px;
-    }
-    .custom-scroll::-webkit-scrollbar-track {
-      background: rgba(253, 242, 248, 0.6);
-      border-radius: 4px;
-    }
-    .custom-scroll::-webkit-scrollbar-thumb {
-      background: #f472b6;
-      border-radius: 4px;
-    }
-
-    /* Soft Icon Pulse Glow Animation */
-    @keyframes iconGlow {
-      0%, 100% {
-        filter: drop-shadow(0 0 10px rgba(244, 114, 182, 0.4));
-        transform: scale(1);
-      }
-      50% {
-        filter: drop-shadow(0 0 18px rgba(244, 114, 182, 0.7));
-        transform: scale(1.05);
-      }
-    }
-
-    .icon-glow {
-      animation: iconGlow 3s infinite ease-in-out;
-    }
-
-    /* Word Search Cell Styles */
-    .ws-cell {
-      user-select: none;
-      -webkit-user-select: none;
-      touch-action: none;
-      transition: all 0.15s ease;
-    }
-    .ws-cell.selected {
-      background-color: #fbcfe8 !important;
-      color: #9f1239 !important;
-      font-weight: 800;
-      transform: scale(1.05);
-    }
-    .ws-cell.found {
-      background-color: #f472b6 !important;
-      color: #ffffff !important;
-      font-weight: 800;
-      border-color: #f43f5e !important;
-    }
-
-    @media print {
-      body {
-        background: white !important;
-        color: black !important;
-      }
-      .no-print {
-        display: none !important;
-      }
-    }
-  </style>
+        /* Floating animation for the header */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .animate-float {
+            animation: float 4s ease-in-out infinite;
+        }
+    </style>
 </head>
-<body class="text-pink-950 flex flex-col justify-between min-h-screen relative bg-floral-pattern">
+<body class="min-h-screen py-10 px-4">
 
-  <!-- Floating Ribbon Decorative Elements -->
-  <div class="no-print absolute top-2 left-4 text-pink-300 opacity-60 text-2xl select-none">❀</div>
-  <div class="no-print absolute top-6 right-6 text-pink-300 opacity-60 text-3xl select-none">✿</div>
-
-  <!-- Header Section -->
-  <header class="no-print pt-10 pb-4 px-4 text-center relative overflow-hidden">
-    <div class="max-w-4xl mx-auto">
-      
-      <!-- Romantic Script Subtitle -->
-      <p class="font-cursive text-3xl sm:text-4xl text-pink-500 mb-1">The Enlightenment Era</p>
-      
-      <h1 class="font-serif-title text-3xl sm:text-5xl font-bold text-rose-950 tracking-wide mb-3 italic">
-        Philosophers & Thinkers
-      </h1>
-      
-      <p class="text-pink-800/80 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed font-medium">
-        An elegant collection of interactive trading cards highlighting key Enlightenment thinkers who inspired the principles of the U.S. Government.
-      </p>
-      
-      <div class="mt-5 flex flex-wrap justify-center gap-3 text-xs text-pink-900 font-semibold">
-        <span class="flex items-center gap-1.5 bg-white/80 backdrop-blur-sm px-4 py-1.5 rounded-full border border-pink-200 shadow-sm">
-          <i class="fa-solid fa-hand-pointer text-pink-400"></i> Click card to open research
-        </span>
-        <a href="#puzzleSection" class="flex items-center gap-1.5 bg-rose-100 hover:bg-rose-200 text-rose-800 px-4 py-1.5 rounded-full border border-pink-300 shadow-sm transition">
-          <i class="fa-solid fa-magnifying-glass text-pink-500"></i> Play Word Search Below
-        </a>
-      </div>
-    </div>
-  </header>
-
-  <!-- Trading Cards Grid Container -->
-  <main class="max-w-6xl mx-auto px-4 py-6 w-full flex-grow">
-    <div id="cardsGrid" class="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-6 justify-items-center">
-      <!-- Cards rendered via JS -->
-    </div>
-
-    <!-- Review Game / Word Search Section -->
-    <section id="puzzleSection" class="mt-16 bg-white/80 backdrop-blur-md border-4 border-pink-200/90 rounded-3xl p-6 sm:p-8 shadow-xl lace-border relative overflow-hidden max-w-4xl mx-auto">
-      <div class="text-center mb-6">
-        <p class="font-cursive text-2xl text-pink-500">Review Key Vocabulary</p>
-        <h2 class="font-serif-title text-2xl sm:text-3xl font-bold text-rose-950 italic mb-2">
-          Enlightenment Word Search
-        </h2>
-        <p class="text-xs sm:text-sm text-pink-800/80 max-w-md mx-auto">
-          Find all 8 Enlightenment terms hidden in the puzzle grid! Click or drag across letters to select words.
+    <header class="text-center mb-12 max-w-4xl mx-auto bg-white p-8 rounded-2xl shadow-lg border-t-8 border-indigo-600">
+        <div class="inline-block bg-indigo-100 text-indigo-800 px-4 py-1 rounded-full text-sm font-bold tracking-widest mb-4 animate-float">
+            MAJOR GRADE ASSIGNMENT
+        </div>
+        <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4">
+            Enlightenment Thinkers
+        </h1>
+        <p class="text-lg text-gray-600">
+            Click on any trading card to flip it over and reveal how these philosophers influenced the formation of the United States government.
         </p>
-      </div>
+    </header>
 
-      <!-- Score & Reset Bar -->
-      <div class="flex justify-between items-center max-w-lg mx-auto mb-6 px-4 py-2 bg-rose-50 rounded-full border border-pink-200 text-xs font-bold text-rose-900">
-        <span>Words Found: <span id="wordCount" class="text-rose-600 font-extrabold">0</span> / 8</span>
-        <button onclick="initWordSearch()" class="px-3 py-1 bg-white hover:bg-rose-100 text-rose-700 rounded-full border border-pink-200 shadow-sm transition flex items-center gap-1">
-          <i class="fa-solid fa-rotate-right text-pink-400"></i> Reset Grid
-        </button>
-      </div>
+    <main class="max-w-7xl mx-auto flex flex-wrap justify-center items-center gap-6">
 
-      <div class="flex flex-col lg:flex-row items-center justify-center gap-6 max-w-3xl mx-auto">
-        <!-- Word Search Grid Container (12x12 Grid) -->
-        <div id="wordGrid" class="grid grid-cols-12 gap-1 bg-rose-100/60 p-2.5 rounded-2xl border-2 border-pink-200 shadow-inner select-none">
-          <!-- Grid cells dynamically generated via JS -->
-        </div>
-
-        <!-- Word List Bank -->
-        <div class="w-full lg:w-48 bg-rose-50/70 rounded-2xl p-4 border border-pink-200">
-          <h3 class="font-serif-title text-xs font-bold uppercase tracking-wider text-rose-800 mb-3 text-center border-b border-pink-200 pb-2">
-            Word Bank
-          </h3>
-          <div id="wordBankList" class="grid grid-cols-2 lg:grid-cols-1 gap-2 text-xs font-bold text-rose-950">
-            <!-- Word bank dynamically generated -->
-          </div>
-        </div>
-      </div>
-
-      <!-- Victory Banner -->
-      <div id="victoryMessage" class="hidden mt-6 p-4 bg-gradient-to-r from-pink-100 via-rose-100 to-pink-100 border-2 border-pink-300 rounded-2xl text-center">
-        <p class="font-cursive text-3xl text-rose-600 mb-1">Wonderful Job! ❀</p>
-        <p class="text-sm text-pink-900 font-medium">You found all 8 key Enlightenment vocabulary words!</p>
-      </div>
-    </section>
-  </main>
-
-  <!-- Modal View (Enlarged Card) -->
-  <div id="cardModal" class="fixed inset-0 bg-pink-950/40 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 transition-all duration-300 opacity-0">
-    <div id="modalContainer" class="bg-gradient-to-b from-rose-50 via-white to-pink-50 border-4 border-pink-200 rounded-3xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl shadow-pink-900/20 transform scale-95 transition-all duration-300 overflow-hidden relative lace-border">
-      
-      <!-- Close Button -->
-      <button onclick="closeModal()" class="absolute top-4 right-4 z-10 w-9 h-9 bg-white/90 hover:bg-rose-100 text-rose-700 rounded-full flex items-center justify-center transition-colors border border-rose-200 shadow-sm">
-        <i class="fa-solid fa-xmark text-lg"></i>
-      </button>
-
-      <!-- Modal Content Header -->
-      <div class="p-6 pb-4 bg-gradient-to-r from-pink-100/80 via-rose-50 to-pink-100/80 border-b border-pink-200/80 flex flex-col sm:flex-row items-center sm:items-start gap-5">
-        <div class="relative group shrink-0" id="modalImageContainer">
-          <img id="modalImage" src="" alt="" class="w-28 h-28 sm:w-32 sm:h-32 object-cover rounded-2xl border-4 border-white shadow-md shadow-pink-200">
-          <div class="absolute -bottom-2 -right-2 bg-rose-300 text-white text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full shadow-sm">
-            18th Century
-          </div>
-        </div>
-        <div class="text-center sm:text-left flex-grow">
-          <div class="inline-block text-xs font-bold text-rose-500 tracking-widest uppercase mb-1" id="modalWork"></div>
-          <h2 id="modalName" class="font-serif-title text-2xl sm:text-3xl font-bold text-rose-950 mb-1 italic"></h2>
-          <p id="modalLived" class="text-pink-800/80 text-sm font-semibold mb-3"></p>
-          <div class="flex flex-wrap justify-center sm:justify-start gap-2">
-            <button onclick="copyCardData()" class="text-xs bg-white hover:bg-rose-50 text-rose-700 font-semibold px-3 py-1.5 rounded-full border border-pink-200 shadow-sm transition flex items-center gap-1.5">
-              <i class="fa-regular fa-copy text-pink-400"></i> <span id="copyBtnText">Copy Facts</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Modal Body (Scrollable Details) -->
-      <div class="p-6 overflow-y-auto custom-scroll space-y-6 text-pink-950">
-        
-        <!-- Key Ideas Section -->
-        <div>
-          <h3 class="text-xs font-bold uppercase tracking-widest text-rose-600 mb-3 flex items-center gap-2">
-            <i class="fa-solid fa-seedling text-pink-400"></i> Key Philosophical Ideas & Concepts
-          </h3>
-          <ul id="modalIdeas" class="space-y-2.5 text-sm sm:text-base leading-relaxed">
-            <!-- Ideas inserted via JS -->
-          </ul>
-        </div>
-
-        <!-- U.S. Government Influence Section -->
-        <div class="bg-white/80 border border-pink-200/90 rounded-2xl p-4 shadow-sm">
-          <h3 class="text-xs font-bold uppercase tracking-widest text-rose-600 mb-2 flex items-center gap-2">
-            <i class="fa-solid fa-ribbon text-pink-400"></i> Influence on U.S. Government
-          </h3>
-          <p id="modalInfluence" class="text-pink-900/90 text-sm sm:text-base leading-relaxed italic font-serif-title"></p>
-        </div>
-
-        <!-- Historical Facts Section -->
-        <div>
-          <h3 class="text-xs font-bold uppercase tracking-widest text-rose-600 mb-3 flex items-center gap-2">
-            <i class="fa-solid fa-scroll text-pink-400"></i> Historically Accurate Facts
-          </h3>
-          <ul id="modalFacts" class="space-y-2 text-sm sm:text-base text-pink-900 list-disc list-inside leading-relaxed">
-            <!-- Facts inserted via JS -->
-          </ul>
-        </div>
-      </div>
-
-      <!-- Modal Footer -->
-      <div class="p-4 bg-rose-50/80 border-t border-pink-200/60 flex justify-between items-center text-xs text-pink-800">
-        <span class="font-cursive text-xl text-pink-500">Enlightenment Collection</span>
-        <button onclick="closeModal()" class="px-5 py-2 bg-rose-400 hover:bg-rose-500 text-white rounded-full font-semibold transition-colors shadow-sm">
-          Close Card
-        </button>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- Footer -->
-  <footer class="no-print mt-12 py-6 border-t border-pink-200/60 text-center text-xs text-pink-800/70">
-    <p class="font-cursive text-2xl text-pink-400 mb-1">Social Studies & Civics</p>
-    <p>U.S. Government Foundations • Enlightenment Trading Cards</p>
-  </footer>
-
-  <script>
-    // Thinker Research Data with updated image URLs
-    const thinkersData = [
-      {
-        id: "john-locke",
-        name: "John Locke",
-        lived: "1632–1704",
-        famousWork: "Two Treatises of Government (1689)",
-        image: "https://upload.wikimedia.org/wikipedia/commons/d/d1/JohnLocke.jpg",
-        icon: "fa-feather-pointed",
-        iconConcept: "Natural Rights & Philosophy",
-        keyIdeas: [
-          "<strong>Natural Rights:</strong> Believed all people are born with inherent rights to <em>life, liberty, and property</em>.",
-          "<strong>Social Contract & Consent:</strong> Government exists only because citizens grant it power. If a government fails to protect rights, people have the right to alter or overthrow it.",
-          "<strong>Tabula Rasa (Blank Slate):</strong> Taught that human minds start as blank slates shaped entirely by experience and reason rather than innate divine rule."
-        ],
-        influence: "Locke's concepts formed the foundation of the <strong>Declaration of Independence</strong>. Thomas Jefferson directly adapted Locke’s natural rights into 'life, liberty, and the pursuit of happiness' and embedded the principle that governments derive power from the consent of the governed.",
-        facts: [
-          "Published his influential work <em>Two Treatises of Government</em> anonymously in 1689.",
-          "Was formally trained as a physician at Oxford and served as the personal doctor to the Earl of Shaftesbury."
-        ]
-      },
-      {
-        id: "montesquieu",
-        name: "Montesquieu",
-        fullName: "Charles-Louis de Secondat, Baron de Montesquieu",
-        lived: "1689–1755",
-        famousWork: "The Spirit of the Laws (1748)",
-        image: "https://upload.wikimedia.org/wikipedia/commons/e/e6/Charles_Montesquieu.jpg",
-        icon: "fa-scale-balanced",
-        iconConcept: "Separation of Powers & Law",
-        keyIdeas: [
-          "<strong>Separation of Powers:</strong> Argued political power should be divided into distinct branches (legislative, executive, judicial) so no single individual or entity gains absolute control.",
-          "<strong>Checks and Balances:</strong> Each branch must hold specific tools to limit and balance the authority of the other branches to prevent tyranny.",
-          "<strong>Rule of Law:</strong> Maintained that laws must apply equally to all citizens, including sovereign rulers and state institutions."
-        ],
-        influence: "Montesquieu directly inspired the structural framework of the <strong>U.S. Constitution</strong>. The three distinct branches of American federal government—Congress (Legislative), the President (Executive), and the Supreme Court (Judicial)—were created explicitly using his doctrine.",
-        facts: [
-          "Published <em>The Spirit of the Laws</em> in 1748, which was initially banned by the Catholic Church.",
-          "Inherited the official nobility title of Baron and served as a judge in Bordeaux, France, before devoting his life to political philosophy."
-        ]
-      },
-      {
-        id: "voltaire",
-        name: "Voltaire",
-        fullName: "François-Marie Arouet (pen name: Voltaire)",
-        lived: "1694–1778",
-        famousWork: "Treatise on Tolerance (1763)",
-        image: "https://upload.wikimedia.org/wikipedia/commons/f/f2/Atelier_de_Nicolas_de_Largilli%C3%A8re%2C_portrait_de_Voltaire_%28mus%C3%A9e_Carnavalet%29_-001.jpg",
-        icon: "fa-comment-dots",
-        iconConcept: "Free Expression & Speech",
-        keyIdeas: [
-          "<strong>Freedom of Speech & Thought:</strong> Strongly championed civil liberties and every individual's right to state opinions freely without fear of government censors.",
-          "<strong>Religious Tolerance:</strong> Vehemently opposed religious fanaticism, advocating for complete liberty of conscience and personal belief.",
-          "<strong>Separation of Church & State:</strong> Argued that religious institutions should be kept separate from civil law and political governance."
-        ],
-        influence: "Voltaire’s passionate advocacy for individual civil liberties heavily shaped the <strong>Bill of Rights</strong>. His philosophy is enshrined directly in the First Amendment of the U.S. Constitution, which protects free speech, freedom of religion, and press freedoms.",
-        facts: [
-          "Wrote <em>Treatise on Tolerance</em> (1763) following a famous case of religious injustice in France (the Jean Calas affair).",
-          "Was imprisoned in the famous Bastille prison twice and repeatedly exiled from Paris for writing sharp satirical plays mocking corrupt aristocrats."
-        ]
-      }
-    ];
-
-    let currentSelectedThinker = null;
-
-    // Word Search Configuration (12x12 Grid)
-    const targetWords = ["LOCKE", "MONTESQUIEU", "VOLTAIRE", "RIGHTS", "LIBERTY", "LAWS", "SPEECH", "CONSENT"];
-    const GRID_SIZE = 12;
-    let gridData = [];
-    let selectedCells = [];
-    let isSelecting = false;
-    let foundWords = [];
-
-    // Render Trading Cards Grid
-    function renderCards() {
-      const grid = document.getElementById('cardsGrid');
-      grid.innerHTML = thinkersData.map((thinker) => `
-        <div class="perspective-1000 w-full max-w-[320px] h-[480px] cursor-pointer group" onclick="openModal('${thinker.id}')">
-          <div class="card-inner shadow-xl rounded-3xl transition-all duration-300 group-hover:-translate-y-2 group-hover:shadow-pink-300/50">
-            
-            <!-- CARD FRONT -->
-            <div class="card-front bg-gradient-to-b from-rose-100 via-pink-50 to-amber-50 border-4 border-pink-200/90 p-5 flex flex-col justify-between overflow-hidden shadow-sm lace-border">
-              
-              <!-- Decorative Floral Top Header -->
-              <div class="flex justify-between items-center border-b border-pink-200/60 pb-2.5">
-                <span class="font-cursive text-lg text-rose-500 font-bold">
-                  ❀ Floral Edition
-                </span>
-                <i class="fa-solid fa-heart text-pink-300 text-xs"></i>
-              </div>
-
-              <!-- Main Center Visual: Thinker-Specific Icon -->
-              <div class="flex flex-col items-center my-auto py-3 text-center">
-                <div class="relative mb-3">
-                  <!-- Outer Soft Pink Halo -->
-                  <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-gradient-to-tr from-rose-200/80 to-pink-100 flex items-center justify-center border-2 border-white shadow-inner">
-                    <i class="fa-solid ${thinker.icon} text-4xl sm:text-5xl text-rose-400 icon-glow"></i>
-                  </div>
+        <!-- CARD 1: JOHN LOCKE -->
+        <div class="scene">
+            <div class="card-container" onclick="flipCard(this)">
+                
+                <!-- Front of Card -->
+                <div class="card-face card-front border-4 border-blue-800">
+                    <div class="h-1/2 w-full bg-blue-800 relative">
+                        <img src="images/locke.jpg" onerror="this.onerror=null; this.src='https://placehold.co/400x300/1e3a8a/ffffff?text=John+Locke';" alt="John Locke Portrait" class="w-full h-full object-cover opacity-80 mix-blend-luminosity">
+                        <div class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-blue-900 to-transparent p-4">
+                            <h2 class="name-title text-3xl text-white font-bold">John Locke</h2>
+                            <p class="text-blue-200 font-medium">1632 – 1704</p>
+                        </div>
+                    </div>
+                    <div class="h-1/2 p-6 flex flex-col justify-between bg-blue-50 text-center">
+                        <div>
+                            <span class="inline-block bg-blue-200 text-blue-800 py-1 px-3 rounded-full text-xs font-bold mb-3 uppercase tracking-wide">English Philosopher</span>
+                            <p class="text-gray-700 italic font-serif">"The Champion of Natural Rights"</p>
+                        </div>
+                        <div class="mt-4 animate-pulse">
+                            <span class="bg-blue-600 text-white py-2 px-6 rounded-lg text-sm font-semibold shadow hover:bg-blue-700 transition">Tap to Flip ⤵</span>
+                        </div>
+                    </div>
                 </div>
 
-                <h3 class="font-serif-title text-2xl font-bold text-rose-950 tracking-wide mb-1 italic">
-                  ${thinker.name}
-                </h3>
-                <p class="text-xs font-bold text-rose-400 tracking-wider mb-1">
-                  ${thinker.lived}
-                </p>
-                <span class="text-[10px] font-semibold text-pink-600/80 uppercase tracking-widest bg-white/60 px-2 py-0.5 rounded-full border border-pink-200/50">
-                  ${thinker.iconConcept}
-                </span>
-              </div>
+                <!-- Back of Card -->
+                <div class="card-face card-back border-4 border-blue-800 p-6 bg-white flex flex-col gap-4">
+                    <div class="border-b-2 border-blue-200 pb-2">
+                        <h3 class="text-xl text-blue-900 font-bold mb-1">Key Ideas</h3>
+                        <ul class="list-disc pl-5 text-sm text-gray-700 space-y-1">
+                            <li>Believed all people are born with <strong>natural rights</strong> (life, liberty, and property).</li>
+                            <li>Proposed the concept of the <strong>social contract</strong>, where government gets its authority from the "consent of the governed."</li>
+                            <li>Argued citizens have a right to alter or overthrow a government that fails to protect natural rights.</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="border-b-2 border-blue-200 pb-2">
+                        <h3 class="text-xl text-blue-900 font-bold mb-1">Influence on U.S.</h3>
+                        <p class="text-sm text-gray-700">
+                            John Locke directly inspired Thomas Jefferson when writing the Declaration of Independence. Locke’s theory of natural rights was adapted into "life, liberty, and the pursuit of happiness," forming the foundational belief that American government exists to serve and protect its citizens.
+                        </p>
+                    </div>
 
-              <!-- Card Bottom Details -->
-              <div class="bg-white/90 backdrop-blur rounded-2xl p-3 border border-pink-200/80 text-center shadow-sm">
-                <p class="text-[11px] text-rose-700/90 font-semibold truncate mb-1">
-                  <i class="fa-solid fa-feather-pointed text-xs mr-1 text-pink-400"></i> ${thinker.famousWork}
-                </p>
-                <div class="flex items-center justify-center gap-1 text-[11px] text-rose-500 font-bold uppercase tracking-wider">
-                  <span>Explore Research</span>
-                  <i class="fa-solid fa-arrow-right text-[10px] transition-transform group-hover:translate-x-1"></i>
+                    <div>
+                        <h3 class="text-xl text-blue-900 font-bold mb-1">Historical Facts</h3>
+                        <ul class="list-disc pl-5 text-sm text-gray-700 space-y-1">
+                            <li>Wrote <em>Two Treatises of Government</em> in 1689.</li>
+                            <li>Was a trained physician and served as a personal doctor before writing his famous political philosophy works.</li>
+                        </ul>
+                    </div>
                 </div>
-              </div>
-
             </div>
-
-          </div>
         </div>
-      `).join('');
-    }
 
-    // Word Search Generator and Handlers
-    function initWordSearch() {
-      foundWords = [];
-      selectedCells = [];
-      isSelecting = false;
-      document.getElementById('wordCount').textContent = "0";
-      document.getElementById('victoryMessage').classList.add('hidden');
+        <!-- CARD 2: MONTESQUIEU -->
+        <div class="scene">
+            <div class="card-container" onclick="flipCard(this)">
+                
+                <!-- Front of Card -->
+                <div class="card-face card-front border-4 border-emerald-800">
+                    <div class="h-1/2 w-full bg-emerald-800 relative">
+                        <img src="images/montesquieu.jpg" onerror="this.onerror=null; this.src='https://placehold.co/400x300/064e3b/ffffff?text=Montesquieu';" alt="Montesquieu Portrait" class="w-full h-full object-cover opacity-80 mix-blend-luminosity">
+                        <div class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-emerald-900 to-transparent p-4">
+                            <h2 class="name-title text-3xl text-white font-bold">Montesquieu</h2>
+                            <p class="text-emerald-200 font-medium">1689 – 1755</p>
+                        </div>
+                    </div>
+                    <div class="h-1/2 p-6 flex flex-col justify-between bg-emerald-50 text-center">
+                        <div>
+                            <span class="inline-block bg-emerald-200 text-emerald-800 py-1 px-3 rounded-full text-xs font-bold mb-3 uppercase tracking-wide">French Judge & Thinker</span>
+                            <p class="text-gray-700 italic font-serif">"Architect of the Three Branches"</p>
+                        </div>
+                        <div class="mt-4 animate-pulse">
+                            <span class="bg-emerald-600 text-white py-2 px-6 rounded-lg text-sm font-semibold shadow hover:bg-emerald-700 transition">Tap to Flip ⤵</span>
+                        </div>
+                    </div>
+                </div>
 
-      // Create empty 12x12 grid
-      gridData = Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(''));
+                <!-- Back of Card -->
+                <div class="card-face card-back border-4 border-emerald-800 p-6 bg-white flex flex-col gap-4">
+                    <div class="border-b-2 border-emerald-200 pb-2">
+                        <h3 class="text-xl text-emerald-900 font-bold mb-1">Key Ideas</h3>
+                        <ul class="list-disc pl-5 text-sm text-gray-700 space-y-1">
+                            <li>Developed the concept of the <strong>separation of powers</strong> to prevent tyranny.</li>
+                            <li>Introduced the system of <strong>checks and balances</strong>, where each branch restrains the others.</li>
+                            <li>Believed laws should adapt to the specific social, geographic, and political needs of a country.</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="border-b-2 border-emerald-200 pb-2">
+                        <h3 class="text-xl text-emerald-900 font-bold mb-1">Influence on U.S.</h3>
+                        <p class="text-sm text-gray-700">
+                            Montesquieu’s framework directly shaped the structure of the U.S. Constitution. The Constitutional Convention divided the federal government into three distinct branches—legislative, executive, and judicial—to ensure no single branch or leader could gain absolute control.
+                        </p>
+                    </div>
 
-      // Word placement logic within 12x12 grid
-      const placements = [
-        { word: "MONTESQUIEU", r: 0, c: 0, dr: 1, dc: 0 },
-        { word: "LOCKE", r: 0, c: 2, dr: 0, dc: 1 },
-        { word: "VOLTAIRE", r: 2, c: 2, dr: 0, dc: 1 },
-        { word: "RIGHTS", r: 4, c: 3, dr: 0, dc: 1 },
-        { word: "LIBERTY", r: 6, c: 2, dr: 0, dc: 1 },
-        { word: "LAWS", r: 8, c: 3, dr: 0, dc: 1 },
-        { word: "SPEECH", r: 1, c: 11, dr: 1, dc: 0 },
-        { word: "CONSENT", r: 10, c: 2, dr: 0, dc: 1 }
-      ];
-
-      placements.forEach(({ word, r, c, dr, dc }) => {
-        for (let i = 0; i < word.length; i++) {
-          gridData[r + i * dr][c + i * dc] = word[i];
-        }
-      });
-
-      // Fill remaining empty spots with random uppercase letters
-      const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-      for (let r = 0; r < GRID_SIZE; r++) {
-        for (let c = 0; c < GRID_SIZE; c++) {
-          if (!gridData[r][c]) {
-            gridData[r][c] = letters[Math.floor(Math.random() * letters.length)];
-          }
-        }
-      }
-
-      renderWordGrid();
-      renderWordBank();
-    }
-
-    function renderWordGrid() {
-      const gridElem = document.getElementById('wordGrid');
-      gridElem.innerHTML = '';
-
-      for (let r = 0; r < GRID_SIZE; r++) {
-        for (let c = 0; c < GRID_SIZE; c++) {
-          const cell = document.createElement('div');
-          cell.className = 'ws-cell w-6 h-6 sm:w-8 sm:h-8 bg-white rounded-md border border-pink-200 flex items-center justify-center font-bold text-[10px] sm:text-xs text-rose-900 cursor-pointer shadow-sm';
-          cell.dataset.r = r;
-          cell.dataset.c = c;
-          cell.textContent = gridData[r][c];
-
-          cell.addEventListener('mousedown', (e) => startSelection(r, c));
-          cell.addEventListener('mouseenter', (e) => continueSelection(r, c));
-          cell.addEventListener('mouseup', endSelection);
-
-          // Touch events support for mobile
-          cell.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            startSelection(r, c);
-          });
-          cell.addEventListener('touchmove', (e) => {
-            e.preventDefault();
-            const touch = e.touches[0];
-            const target = document.elementFromPoint(touch.clientX, touch.clientY);
-            if (target && target.classList.contains('ws-cell')) {
-              continueSelection(parseInt(target.dataset.r), parseInt(target.dataset.c));
-            }
-          });
-          cell.addEventListener('touchend', endSelection);
-
-          gridElem.appendChild(cell);
-        }
-      }
-
-      document.addEventListener('mouseup', endSelection);
-    }
-
-    function renderWordBank() {
-      const bankList = document.getElementById('wordBankList');
-      bankList.innerHTML = targetWords.map(word => `
-        <div id="word-${word}" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white border border-pink-200 text-pink-900 transition-all">
-          <i class="fa-regular fa-circle text-[10px] text-pink-300 font-icon"></i>
-          <span>${word}</span>
+                    <div>
+                        <h3 class="text-xl text-emerald-900 font-bold mb-1">Historical Facts</h3>
+                        <ul class="list-disc pl-5 text-sm text-gray-700 space-y-1">
+                            <li>Published his landmark political masterpiece, <em>The Spirit of the Laws</em>, in 1748.</li>
+                            <li>Inherited the official title "Baron de La Brède et de Montesquieu" along with a seat in the regional parliament of Bordeaux.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
-      `).join('');
-    }
 
-    function startSelection(r, c) {
-      isSelecting = true;
-      selectedCells = [{ r, c }];
-      updateCellStyles();
-    }
+        <!-- CARD 3: VOLTAIRE -->
+        <div class="scene">
+            <div class="card-container" onclick="flipCard(this)">
+                
+                <!-- Front of Card -->
+                <div class="card-face card-front border-4 border-purple-800">
+                    <div class="h-1/2 w-full bg-purple-800 relative">
+                        <img src="images/voltaire.jpg" onerror="this.onerror=null; this.src='https://placehold.co/400x300/4c1d95/ffffff?text=Voltaire';" alt="Voltaire Portrait" class="w-full h-full object-cover opacity-80 mix-blend-luminosity">
+                        <div class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-purple-900 to-transparent p-4">
+                            <h2 class="name-title text-3xl text-white font-bold">Voltaire</h2>
+                            <p class="text-purple-200 font-medium">1694 – 1778</p>
+                        </div>
+                    </div>
+                    <div class="h-1/2 p-6 flex flex-col justify-between bg-purple-50 text-center">
+                        <div>
+                            <span class="inline-block bg-purple-200 text-purple-800 py-1 px-3 rounded-full text-xs font-bold mb-3 uppercase tracking-wide">French Writer & Critic</span>
+                            <p class="text-gray-700 italic font-serif">"Defender of Free Speech"</p>
+                        </div>
+                        <div class="mt-4 animate-pulse">
+                            <span class="bg-purple-600 text-white py-2 px-6 rounded-lg text-sm font-semibold shadow hover:bg-purple-700 transition">Tap to Flip ⤵</span>
+                        </div>
+                    </div>
+                </div>
 
-    function continueSelection(r, c) {
-      if (!isSelecting) return;
-      const last = selectedCells[selectedCells.length - 1];
-      if (last.r === r && last.c === c) return;
+                <!-- Back of Card -->
+                <div class="card-face card-back border-4 border-purple-800 p-6 bg-white flex flex-col gap-4">
+                    <div class="border-b-2 border-purple-200 pb-2">
+                        <h3 class="text-xl text-purple-900 font-bold mb-1">Key Ideas</h3>
+                        <ul class="list-disc pl-5 text-sm text-gray-700 space-y-1">
+                            <li>Fiercely advocated for <strong>freedom of speech</strong>, <strong>freedom of religion</strong>, and freedom of the press.</li>
+                            <li>Supported the <strong>separation of church and state</strong> to protect personal freedom and reduce religious conflict.</li>
+                            <li>Used wit, satire, and reason to criticize religious intolerance, censorship, and corruption.</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="border-b-2 border-purple-200 pb-2">
+                        <h3 class="text-xl text-purple-900 font-bold mb-1">Influence on U.S.</h3>
+                        <p class="text-sm text-gray-700">
+                            Voltaire’s defense of civil liberties heavily influenced James Madison and the Framers during the creation of the Bill of Rights. His core principles are directly reflected in the First Amendment, which protects freedom of speech, religion, press, and assembly.
+                        </p>
+                    </div>
 
-      // Add to selection if not already selected
-      if (!selectedCells.some(cell => cell.r === r && cell.c === c)) {
-        selectedCells.push({ r, c });
-        updateCellStyles();
-      }
-    }
+                    <div>
+                        <h3 class="text-xl text-purple-900 font-bold mb-1">Historical Facts</h3>
+                        <ul class="list-disc pl-5 text-sm text-gray-700 space-y-1">
+                            <li>Wrote <em>Treatise on Tolerance</em> (1763) and the famous satirical novel <em>Candide</em> (1759).</li>
+                            <li>Spent time imprisoned in the famous Bastille prison in Paris twice due to his outspoken writings.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    function updateCellStyles() {
-      document.querySelectorAll('.ws-cell').forEach(cell => {
-        const r = parseInt(cell.dataset.r);
-        const c = parseInt(cell.dataset.c);
-        if (selectedCells.some(sc => sc.r === r && sc.c === c)) {
-          cell.classList.add('selected');
-        } else {
-          cell.classList.remove('selected');
+    </main>
+
+    <footer class="mt-16 text-center text-gray-500 text-sm">
+        <p>Assignment: Enlightenment Thinkers Trading Cards | Designed for Web Submission</p>
+    </footer>
+
+    <script>
+        /**
+         * Toggles the 'is-flipped' class on the card container to trigger the 3D CSS transition.
+         * @param {HTMLElement} element - The card container element that was clicked.
+         */
+        function flipCard(element) {
+            element.classList.toggle('is-flipped');
         }
-      });
-    }
-
-    function endSelection() {
-      if (!isSelecting) return;
-      isSelecting = false;
-
-      const selectedWord = selectedCells.map(sc => gridData[sc.r][sc.c]).join('');
-      const reverseWord = selectedWord.split('').reverse().join('');
-
-      let matchedWord = null;
-      if (targetWords.includes(selectedWord) && !foundWords.includes(selectedWord)) {
-        matchedWord = selectedWord;
-      } else if (targetWords.includes(reverseWord) && !foundWords.includes(reverseWord)) {
-        matchedWord = reverseWord;
-      }
-
-      if (matchedWord) {
-        foundWords.push(matchedWord);
-        document.getElementById('wordCount').textContent = foundWords.length;
-
-        // Permanently mark cells as found
-        selectedCells.forEach(sc => {
-          const cell = document.querySelector(`.ws-cell[data-r="${sc.r}"][data-c="${sc.c}"]`);
-          if (cell) cell.classList.add('found');
-        });
-
-        // Update word bank UI
-        const bankElem = document.getElementById(`word-${matchedWord}`);
-        if (bankElem) {
-          bankElem.classList.remove('bg-white', 'text-pink-900');
-          bankElem.classList.add('bg-pink-200', 'text-pink-800', 'line-through');
-          bankElem.querySelector('i').className = 'fa-solid fa-check-circle text-[10px] text-rose-500';
-        }
-
-        if (foundWords.length === targetWords.length) {
-          document.getElementById('victoryMessage').classList.remove('hidden');
-        }
-      }
-
-      selectedCells = [];
-      updateCellStyles();
-    }
-
-    // Open Modal with Card Information
-    function openModal(id) {
-      const thinker = thinkersData.find(t => t.id === id);
-      if (!thinker) return;
-
-      currentSelectedThinker = thinker;
-
-      document.getElementById('modalName').textContent = thinker.fullName || thinker.name;
-      document.getElementById('modalLived').textContent = `Lived: ${thinker.lived}`;
-      document.getElementById('modalWork').textContent = thinker.famousWork;
-      
-      const imgElem = document.getElementById('modalImage');
-      const imgContainer = document.getElementById('modalImageContainer');
-      
-      // Reset image element state
-      imgElem.style.display = 'block';
-      imgElem.src = thinker.image;
-      
-      // Clear any prior fallback badges
-      const oldFallback = document.getElementById('modalFallbackAvatar');
-      if (oldFallback) oldFallback.remove();
-
-      // Graceful fallback if any image URL fails to load
-      imgElem.onerror = () => {
-        imgElem.style.display = 'none';
-        
-        const fallbackDiv = document.createElement('div');
-        fallbackDiv.id = 'modalFallbackAvatar';
-        fallbackDiv.className = 'w-28 h-28 sm:w-32 sm:h-32 bg-gradient-to-tr from-rose-200 to-pink-100 rounded-2xl border-4 border-white shadow-md shadow-pink-200 flex flex-col items-center justify-center text-rose-400 p-2 text-center';
-        fallbackDiv.innerHTML = `
-          <i class="fa-solid ${thinker.icon} text-4xl mb-1 text-rose-400"></i>
-          <span class="text-[10px] font-bold text-rose-900">${thinker.name}</span>
-        `;
-        imgContainer.insertBefore(fallbackDiv, imgContainer.firstChild);
-      };
-
-      // Key Ideas List
-      const ideasContainer = document.getElementById('modalIdeas');
-      ideasContainer.innerHTML = thinker.keyIdeas.map(idea => `
-        <li class="flex items-start gap-2.5">
-          <i class="fa-solid fa-heart text-pink-400 text-xs mt-1.5 shrink-0"></i>
-          <span>${idea}</span>
-        </li>
-      `).join('');
-
-      // Influence Paragraph
-      document.getElementById('modalInfluence').innerHTML = thinker.influence;
-
-      // Facts List
-      const factsContainer = document.getElementById('modalFacts');
-      factsContainer.innerHTML = thinker.facts.map(fact => `
-        <li class="leading-relaxed">${fact}</li>
-      `).join('');
-
-      // Display Modal
-      const modal = document.getElementById('cardModal');
-      const container = document.getElementById('modalContainer');
-      
-      modal.classList.remove('hidden');
-      setTimeout(() => {
-        modal.classList.remove('opacity-0');
-        container.classList.remove('scale-95');
-        container.classList.add('scale-100');
-      }, 10);
-
-      document.body.style.overflow = 'hidden';
-    }
-
-    // Close Modal
-    function closeModal() {
-      const modal = document.getElementById('cardModal');
-      const container = document.getElementById('modalContainer');
-
-      modal.classList.add('opacity-0');
-      container.classList.remove('scale-100');
-      container.classList.add('scale-95');
-
-      setTimeout(() => {
-        modal.classList.add('hidden');
-        document.body.style.overflow = 'auto';
-      }, 300);
-    }
-
-    // Copy Card Text to Clipboard
-    function copyCardData() {
-      if (!currentSelectedThinker) return;
-      const t = currentSelectedThinker;
-      
-      const textToCopy = `
-NAME: ${t.fullName || t.name} (${t.lived})
-WORK: ${t.famousWork}
-
-KEY IDEAS:
-${t.keyIdeas.map(i => '- ' + i.replace(/<[^>]*>?/gm, '')).join('\n')}
-
-INFLUENCE ON U.S. GOVERNMENT:
-${t.influence.replace(/<[^>]*>?/gm, '')}
-
-HISTORICAL FACTS:
-${t.facts.map(f => '- ' + f.replace(/<[^>]*>?/gm, '')).join('\n')}
-      `.trim();
-
-      // Fallback copy execCommand logic for iframe security compatibility
-      const tempTextArea = document.createElement('textarea');
-      tempTextArea.value = textToCopy;
-      document.body.appendChild(tempTextArea);
-      tempTextArea.select();
-      
-      try {
-        document.execCommand('copy');
-        const btnText = document.getElementById('copyBtnText');
-        btnText.textContent = "Copied!";
-        setTimeout(() => {
-          btnText.textContent = "Copy Facts";
-        }, 2000);
-      } catch (err) {
-        console.error('Could not copy text: ', err);
-      } finally {
-        document.body.removeChild(tempTextArea);
-      }
-    }
-
-    // Close modal on escape key or background click
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeModal();
-    });
-
-    document.getElementById('cardModal').addEventListener('click', (e) => {
-      if (e.target.id === 'cardModal') closeModal();
-    });
-
-    // Initialize Page & Word Search
-    window.onload = function() {
-      renderCards();
-      initWordSearch();
-    };
-  </script>
+    </script>
 </body>
 </html>
