@@ -227,7 +227,7 @@
 
       <!-- Modal Content Header -->
       <div class="p-6 pb-4 bg-gradient-to-r from-pink-100/80 via-rose-50 to-pink-100/80 border-b border-pink-200/80 flex flex-col sm:flex-row items-center sm:items-start gap-5">
-        <div class="relative group shrink-0">
+        <div class="relative group shrink-0" id="modalImageContainer">
           <img id="modalImage" src="" alt="" class="w-28 h-28 sm:w-32 sm:h-32 object-cover rounded-2xl border-4 border-white shadow-md shadow-pink-200">
           <div class="absolute -bottom-2 -right-2 bg-rose-300 text-white text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full shadow-sm">
             18th Century
@@ -295,14 +295,14 @@
   </footer>
 
   <script>
-    // Thinker Research Data
+    // Thinker Research Data with updated image URLs
     const thinkersData = [
       {
         id: "john-locke",
         name: "John Locke",
         lived: "1632–1704",
         famousWork: "Two Treatises of Government (1689)",
-        image: "https://upload.wikimedia.org/wikipedia/commons/d/d1/JohnLocke.png",
+        image: "https://upload.wikimedia.org/wikipedia/commons/d/d1/JohnLocke.jpg",
         icon: "fa-feather-pointed",
         iconConcept: "Natural Rights & Philosophy",
         keyIdeas: [
@@ -322,7 +322,7 @@
         fullName: "Charles-Louis de Secondat, Baron de Montesquieu",
         lived: "1689–1755",
         famousWork: "The Spirit of the Laws (1748)",
-        image: "https://upload.wikimedia.org/wikipedia/commons/e/e4/Montesquieu_1.png",
+        image: "https://upload.wikimedia.org/wikipedia/commons/e/e6/Charles_Montesquieu.jpg",
         icon: "fa-scale-balanced",
         iconConcept: "Separation of Powers & Law",
         keyIdeas: [
@@ -342,7 +342,7 @@
         fullName: "François-Marie Arouet (pen name: Voltaire)",
         lived: "1694–1778",
         famousWork: "Treatise on Tolerance (1763)",
-        image: "https://upload.wikimedia.org/wikipedia/commons/f/f2/Voltaire_1718.png",
+        image: "https://upload.wikimedia.org/wikipedia/commons/f/f2/Atelier_de_Nicolas_de_Largilli%C3%A8re%2C_portrait_de_Voltaire_%28mus%C3%A9e_Carnavalet%29_-001.jpg",
         icon: "fa-comment-dots",
         iconConcept: "Free Expression & Speech",
         keyIdeas: [
@@ -360,7 +360,7 @@
 
     let currentSelectedThinker = null;
 
-    // Word Search Configuration (12x12 Grid to easily accommodate 11-letter word "MONTESQUIEU")
+    // Word Search Configuration (12x12 Grid)
     const targetWords = ["LOCKE", "MONTESQUIEU", "VOLTAIRE", "RIGHTS", "LIBERTY", "LAWS", "SPEECH", "CONSENT"];
     const GRID_SIZE = 12;
     let gridData = [];
@@ -598,9 +598,28 @@
       document.getElementById('modalWork').textContent = thinker.famousWork;
       
       const imgElem = document.getElementById('modalImage');
+      const imgContainer = document.getElementById('modalImageContainer');
+      
+      // Reset image element state
+      imgElem.style.display = 'block';
       imgElem.src = thinker.image;
+      
+      // Clear any prior fallback badges
+      const oldFallback = document.getElementById('modalFallbackAvatar');
+      if (oldFallback) oldFallback.remove();
+
+      // Graceful fallback if any image URL fails to load
       imgElem.onerror = () => {
-        imgElem.src = "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=300&q=80";
+        imgElem.style.display = 'none';
+        
+        const fallbackDiv = document.createElement('div');
+        fallbackDiv.id = 'modalFallbackAvatar';
+        fallbackDiv.className = 'w-28 h-28 sm:w-32 sm:h-32 bg-gradient-to-tr from-rose-200 to-pink-100 rounded-2xl border-4 border-white shadow-md shadow-pink-200 flex flex-col items-center justify-center text-rose-400 p-2 text-center';
+        fallbackDiv.innerHTML = `
+          <i class="fa-solid ${thinker.icon} text-4xl mb-1 text-rose-400"></i>
+          <span class="text-[10px] font-bold text-rose-900">${thinker.name}</span>
+        `;
+        imgContainer.insertBefore(fallbackDiv, imgContainer.firstChild);
       };
 
       // Key Ideas List
